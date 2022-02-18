@@ -1,0 +1,55 @@
+services:
+#  app:
+#    container_name: tdc-app
+#    image: 
+#    ports:
+#      - '15000:80'
+#    volumes:
+#      - tdc-dotnet-tmp:/tmp
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Docker
+#      - ASPNETCORE_URLS=http://+:80
+#      - DOTNET_VERSION=6.0.1
+#      - ASPNET_VERSION=6.0.1
+#      - DOTNET_RUNNING_IN_CONTAINER=1
+#      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#      - DOTNET_USE_POLLING_FILE_WATCHER=1
+  monitor:
+    container_name: tdc-monitor
+    build: 
+      context: ./monitor
+      dockerfile: ./Dockerfile
+    ports:
+      - '52323:52323'
+      - '52325:52325'
+    expose:
+      - 52323
+      - 52325
+    volumes:
+      - tdc-dotnet-tmp:/tmp
+  jmeter:
+    container_name: tdc-jmeter
+    build: 
+      context: ./jmeter
+      dockerfile: ./jmeter.Dockerfile
+    volumes:
+      - ./jmeter/plans:/var/lib/jmeter/plans
+  prometheus:
+    container_name: tdc-prometheus
+    image: prom/prometheus:latest
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus:/etc/prometheus
+  grafana:
+    container_name: tdc-grafana
+    image: grafana/grafana:latest
+    ports:
+      - '30000:3000'
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    environment:
+      - GF_SECURITY_ADMIN_USER=apollo
+      - GF_SECURITY_ADMIN_PASSWORD=apollo1234
+volumes:
+  tdc-dotnet-tmp:
